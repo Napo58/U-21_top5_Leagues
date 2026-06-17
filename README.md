@@ -1,11 +1,80 @@
-European Under-21 Football Market Value & Performance AnalysisThis project scrapes, cleans, and analyzes performance statistics and market values for young football players (under 22 years old) across Europe's Top 5 Leagues (Serie A, LaLiga, Bundesliga, Premier League, and Ligue 1) for the 2021/2022 season.Using statistical modeling in R, the project explores what drives a young player's valuation through Regression Trees and classifies players into distinct profiles using Cluster Analysis.📌 Project OverviewData Source: Scraping via worldfootballR from Transfermarkt.Target Demographics: Players under 22 years old with at least 90 minutes of game time.Key Tasks:Advanced data cleaning and merging (handling mid-season transfers, custom date mapping, and missing values).Descriptive data analysis and visualization.Predictive segmentation using Regression Trees (rpart).Behavioral grouping using Hierarchical & K-Means Clustering.🛠️ Requirements & InstallationTo run this script locally, you need to install the required packages. You can open R or RStudio and run the following code snippet:R# Install devtools if not already installed
+# Analisi delle Prestazioni e dei Valori di Mercato dei Calciatori Under-21 Europei
+
+Questo repository contiene uno script in R (`tesi_2023.R`) sviluppato per raccogliere, pulire e analizzare i dati relativi alle prestazioni e alle quotazioni di mercato dei giovani talenti del calcio mondiale (giocatori con meno di 22 anni) nei **Top 5 Campionati Europei** (Serie A, LaLiga, Bundesliga, Premier League, Ligue 1) per la **stagione 2021/2022**.
+
+Il progetto si articola attraverso tecniche di web scraping, pulizia approfondita dei dati, Alberi di Regressione e Algoritmi di Clustering (K-Means e Gerarchico).
+
+---
+
+## 📌 Obiettivi del Progetto
+
+* **Data Scraping & Integration:** Estrazione automatica e unione dei dati sui valori di mercato e sulle statistiche di campo tramite il pacchetto `worldfootballR` (fonte Transfermarkt).
+* **Data Cleaning Avanzato:** Gestione personalizzata dei dati mancanti, dei contratti in scadenza e consolidamento delle statistiche per i calciatori trasferiti a metà stagione.
+* **Modellazione Predittiva:** Utilizzo di Alberi di Decisione/Regressione per identificare quali variabili (Gol, Minuti, Presenze, Ruolo) impattino maggiormente sul valore economico di un giovane calciatore.
+* **Profilazione dei Giocatori:** Segmentazione dei calciatori in 4 profili comportamentali/prestazionali ben distinti attraverso la Cluster Analysis.
+
+---
+
+## 🛠️ Requisiti e Installazione
+
+Per eseguire lo script in locale sul tuo ambiente R/RStudio, assicurati di installare tutte le librerie necessarie eseguendo il blocco di codice seguente:
+
+```R
+# Installazione di devtools se non presente
 if (!require("devtools")) install.packages("devtools")
 
-# Install worldfootballR from GitHub
+# Installazione della versione di sviluppo di worldfootballR da GitHub
 devtools::install_github("JaseZiv/worldfootballR")
 
-# Install CRAN packages
+# Installazione dei pacchetti CRAN necessari
 install.packages(c("dplyr", "rpart", "rpart.plot", "cluster", "tidyverse", 
                    "factoextra", "ggplot2", "ggridges", "gridExtra", 
                    "ggpubr", "NbClust"))
-📂 Project Pipeline1. Data Scraping & PreprocessingScraping: Gathers player performance stats (tm_squad_stats) and player market values (tm_player_market_values) for all teams across Italy, Spain, Germany, England, and France.Data Integration: Merges datasets by player name and consolidates stats for players who transferred mid-season (e.g., Gavi, Kulusevski, Anthony Gordon, Camavinga).Filtering: Retains only players aged $< 22$ with $> 90$ minutes played.Feature Engineering: Converts contract expiration dates into numerical values representing contract length remaining relative to 2022.2. Statistical Analysis🌲 Regression Trees (rpart)Models the continuous variable Valore_di_mercato (Market Value) using predictors like appearances (Presenze), goals (Gol), minutes played (Minuti_giocati), age (Età), contract length (Scadenza_di_contratto), and role (Ruolo).Includes optimal tree pruning based on the complexity parameter (CP) table to minimize cross-validation error (xerror).👥 Cluster AnalysisData Standardization: Centers and scales variables before distance calculation.Hierarchical Clustering: Evaluates Ward's method distance matrices against Silhouette indices using NbClust to discover the optimal amount of partitions (4 clusters).K-Means Clustering: Segments players into 4 behavioral groupings (gr1 to gr4), visualizing demographic overlaps via density ridges (ggridges) and stacked bar charts across nationalities.📊 Sample Visualizations IncludedThe script automatically generates several plots to evaluate the datasets:Correlation Matrix Scatterplots (pairs): Visual relationships among appearances, goals, minutes played, and market values.Pruned Decision Tree: A flowchart graphic mapping out valuation breakpoints.Density Ridges (ggridges): Comparative graphs explaining the specific performance characteristics defining each of the 4 clusters.Stacked / Filled Bar Charts: Geographic distribution of the player clusters across top footballing nationalities.👥 AuthorsYour Name / GitHub Handle📜 Citations & ReferencesThis script relies heavily on the worldfootballR library developed by Jason Zivkovic. If you use this research or script as a baseline, please cite the respective packages using the native R command citation("package_name").
+
+```
+
+---
+
+## 📂 Struttura del Flauto di Lavoro (Pipeline)
+
+### 1. Pre-elaborazione e Pulizia dei Dati
+
+* **Filtri di Selezione:** Sono inclusi solo i giocatori con un'età inferiore ai 22 anni (`player_age.x < 22`) e con almeno 90 minuti di gioco complessivi accumulati in stagione.
+* **Risoluzione Trasferimenti Doppi:** Lo script unisce manualmente le statistiche spezzate dei giocatori che hanno cambiato squadra a stagione in corso (es. Kulusevski, Bentancur, Vlahović, Camavinga, Ferran Torres, ecc.).
+* **Ingegneria delle Variabili:** La data di scadenza del contratto viene trasformata in una variabile numerica che indica gli anni di contratto rimanenti rispetto al 2022.
+
+### 2. Analisi Statistica
+
+#### 🌲 Alberi di Regressione (`rpart`)
+
+Viene costruito un albero per spiegare il `Valore_di_mercato` in base alle performance di campo.
+
+* Viene valutata la tabella del parametro di complessità (`cptable`) per analizzare l'errore di cross-validation (`xerror`).
+* L'albero viene sottoposto a **potatura (pruning)** sul valore ottimale di CP per evitare l'overfitting ed ottenere un modello interpretabile e generalizzabile.
+
+#### 👥 Cluster Analysis
+
+* **Standardizzazione:** I dati numerici vengono scalati (`scale`) prima del calcolo della distanza euclidea.
+* **Metodo Gerarchico:** Viene applicato il criterio di Ward (`ward.D`). L'indice Silhouette tramite `NbClust` supporta la scelta di una partizione ottimale in **4 gruppi**.
+* **K-Means:** Viene eseguito l'algoritmo K-Means a 4 centroidi per classificare i giocatori. I cluster vengono poi analizzati e confrontati nelle loro medie.
+
+---
+
+## 📊 Visualizzazioni Generate
+
+Lo script produce diversi grafici pronti per l'esportazione:
+
+1. **Matrice di Correlazione (`pairs`):** Relazioni grafiche cross-variabile tra Presenze, Gol, Minuti giocati e Valore.
+2. **Dendrogramma dei Giocatori:** Rappresentazione ad albero del clustering gerarchico con riquadri di divisione dei gruppi.
+3. **Density Ridges (`ggridges`):** Grafici di densità montagnosa per confrontare come si distribuiscono l'Età, i Gol o il Valore di mercato nei 4 diversi gruppi identificati.
+4. **Bar Chart di Distribuzione:** Grafici a barre (impilati e standardizzati al 100%) per vedere come le diverse nazionalità e i campionati si distribuiscono all'interno dei cluster.
+
+---
+
+## 📜 Citazioni
+
+Il progetto fa ampio uso del pacchetto `worldfootballR`. Per citare formalmente le risorse utilizzate all'interno di un eventuale paper o tesi, puoi digitare nel terminale di R il comando `citation("worldfootballR")`.
+
+```
+
+```
